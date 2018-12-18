@@ -1,6 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 
 public class Main {
 
@@ -43,7 +44,6 @@ public class Main {
             lookupTable.put(node.c, s);
         }
     }
-
 
     // The function that builds the lookup table
     private static Map<Character, String> buildLookupTable(final Node root){
@@ -130,11 +130,18 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        final String test = "abcdeffg";
-        final int[] ft = buildFreqTable(test);
+        Scanner sc = new Scanner(System.in);
+        String text = sc.nextLine();
+
+        final int[] ft = buildFreqTable(text);
         final Node n = buildHuffmanTree(ft);
         final Map<Character, String> lookup = buildLookupTable(n);
-        final String encoded = compress(test).encodedData;
-        System.out.println(encoded);
+        final String encoded = compress(text).encodedData;
+
+        System.out.println("----------");
+        lookup.forEach((key, val) -> System.out.println(key + ": " + val));
+        System.out.println("----------");
+
+        System.out.println("Encoded String: " + encoded);
     }
 }
