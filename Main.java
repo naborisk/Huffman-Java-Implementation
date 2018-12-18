@@ -7,12 +7,39 @@ public class Main {
 
     private static final int ALPHABET_SIZE = 256;
 
+    // Takes a String in then return an object of type HuffmanEncodedResult (class below)
     public static HuffmanEncodedResult compress(final String data){
         final int[] freq = buildFreqTable(data);
         final Node root = buildHuffmanTree((freq));
         final Map<Character, String> lookupTable = buildLookupTable(root);
 
         return new HuffmanEncodedResult(generateEncodedData(data, lookupTable), root);
+    }
+
+    // Takes a previously encoded result and decode it
+    public static String decompress(final HuffmanEncodedResult result){
+        final StringBuilder resultStr = new StringBuilder();
+
+        Node current = result.getRoot();
+
+        int i = 0;
+        while(i < result.getEncodedData().length()){
+            while(!current.isLeaf()){
+                char bit = result.getEncodedData().charAt(i);
+                if(bit == '1') {
+                    current = current.right;
+                } else if (bit == '0'){
+                    current = current.left;
+                } else {
+                    throw new IllegalArgumentException("Invalid bit in message" + bit);
+                }
+                i++;
+            }
+            resultStr.append(current.c);
+            current = result.getRoot();
+        }
+
+        return resultStr.toString();
     }
 
     /* The function that builds the String of encoded data by
@@ -56,8 +83,6 @@ public class Main {
 
     }
 
-
-
     private static Node buildHuffmanTree(int[] freq){
         final PriorityQueue<Node> pq = new PriorityQueue<>();
 
@@ -86,10 +111,6 @@ public class Main {
         return freq;
     }
 
-    public String decompress(final HuffmanEncodedResult result){
-        return null;
-    }
-
     static class HuffmanEncodedResult {
         final Node root;
         final String encodedData;
@@ -97,6 +118,14 @@ public class Main {
         HuffmanEncodedResult(final String encodedData, final Node root){
             this.encodedData = encodedData;
             this.root = root;
+        }
+
+        public Node getRoot() {
+            return this.root;
+        }
+
+        public String getEncodedData() {
+            return this.encodedData;
         }
     }
 
@@ -127,21 +156,55 @@ public class Main {
 
             return Integer.compare(this.freq, that.freq);
         }
+
+        /*
+         * Tree printing logic from:
+         * https://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram
+         */
+        private StringBuilder toString(StringBuilder prefix, boolean isTail, StringBuilder sb) {
+            if(right!=null) {
+                right.toString(new StringBuilder().append(prefix).append(isTail ? "│   " : "    "), false, sb);
+            }
+            sb.append(prefix).append(isTail ? "└── " : "┌── ").append( "<" + (c == '\0' ? '#' : c == '\n' ? "\\n" : c ) + ": " + freq + ">").append("\n");
+            if(left!=null) {
+                left.toString(new StringBuilder().append(prefix).append(isTail ? "    " : "│   "), true, sb);
+            }
+            return sb;
+        }
+
+        @Override
+        public String toString() {
+            return this.toString(new StringBuilder(), true, new StringBuilder()).toString();
+        }
     }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String text = sc.nextLine();
+        StringBuilder sb = new StringBuilder();
+
+        System.out.print("Enter the number of lines: ");
+        int lines = new Scanner(System.in).nextInt();
+
+        System.out.println("Input the String you want encoded:");
+        for (int i = 0; i < lines; i++) {
+            sb.append(sc.nextLine()).append("\n");
+        }
+
+        String text = sb.toString();
 
         final int[] ft = buildFreqTable(text);
         final Node n = buildHuffmanTree(ft);
         final Map<Character, String> lookup = buildLookupTable(n);
-        final String encoded = compress(text).encodedData;
+        final HuffmanEncodedResult res = compress(text);
 
         System.out.println("----------");
-        lookup.forEach((key, val) -> System.out.println(key + ": " + val));
-        System.out.println("----------");
+        System.out.println("Encoded String: " + res.getEncodedData());
+        System.out.println("Decoded String:\n" + decompress(res));
 
-        System.out.println("Encoded String: " + encoded);
+        System.out.println("----------\nConversion Table");
+        lookup.forEach((key, val) -> System.out.println("   " + (key == '\n' ? "\\n" : key) + ": " + val));
+
+        System.out.println("----------\nHuffman Tree");
+        System.out.println(n);
     }
 }
