@@ -1,3 +1,10 @@
+/* Group Members:
+ * 
+ * 6088030 Tussoun Jitpanyoyos
+ * 6088108 Pholvaris Palakool
+ * 
+ */
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -66,7 +73,7 @@ public class Main {
     private static void buildLookupTableRecursive(Node node, String s, Map<Character, String> lookupTable) {
         if(!node.isLeaf()){
             buildLookupTableRecursive(node.left, s + '0', lookupTable);
-            buildLookupTableRecursive(node.right, s+ 1, lookupTable);
+            buildLookupTableRecursive(node.right, s + '1', lookupTable);
         } else {
             lookupTable.put(node.c, s);
         }
@@ -187,7 +194,7 @@ public class Main {
 
         System.out.println("Input the String you want encoded:");
         for (int i = 0; i < lines; i++) {
-            sb.append(sc.nextLine()).append("\n");
+            sb.append(sc.nextLine()).append((i == lines-1) ? "" : '\n'); // omit the last line's newline
         }
 
         String text = sb.toString();
